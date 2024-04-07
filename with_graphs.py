@@ -280,9 +280,9 @@ def get_depth(graph, origin):
 	
 
 
-graph = Graph()
-origin = State(random_begin()[0], 0, 0, 0, 1)
-graph = generate_graph(origin, 1, graph)
+#graph = Graph()
+#origin = State(random_begin()[0], 0, 0, 0, 1)
+#graph = generate_graph(origin, 1, graph)
 #graph = generate_graph(State(random_begin()[0], 0, 0, 0, 1), 1, 3)
 #print(display_graph(graph))
 
