@@ -72,25 +72,6 @@ class Graph:
 				return children
 		else:
 			raise ValueError("The node does not belong to the graph.")
-		
-	def get_from_divisor(self, state, divisor):
-		"""
-		Returns the child of a given node that is reached by a specific divisor.
-
-		Args:
-			state (State): The state of the node to get the child of.
-			divisor (int): The number by which the starting state is divided to reach the child.
-
-		Returns:
-			State: The child of the node that is reached by the divisor.
-		"""
-		for node, children in self.nodes.items():
-			if node.actual_number == state.actual_number and node.points_player1 == state.points_player1 and node.points_player2 == state.points_player2 and node.bank == state.bank and node.actual_player == state.actual_player:
-				for child, div in children:
-					if div == divisor:
-						return child
-		else:
-			raise ValueError("The node does not belong to the graph.")
 
 def display_graph(self):
 	dot_code = "digraph G {\n"    
@@ -290,7 +271,7 @@ def alpha_beta(graph, state, depth, alpha, beta, maximizing_player):
 
 
 #TESTS
-"""
+
 def get_depth(graph, origin):
 	depth = 0
 	for c in graph.get_children(origin):
@@ -303,12 +284,11 @@ graph = Graph()
 origin = State(random_begin()[0], 0, 0, 0, 1)
 graph = generate_graph(origin, 1, graph)
 #graph = generate_graph(State(random_begin()[0], 0, 0, 0, 1), 1, 3)
-print(display_graph(graph))
+#print(display_graph(graph))
 
 
 #print(minimax(graph, origin, get_depth(graph, origin), True).__display__())
 #print(get_depth(graph, origin))
 
 
-print(alpha_beta(graph, origin, get_depth(graph, origin), float('-inf'), float('inf'), True).__display__())
-"""
+#print(alpha_beta(graph, origin, get_depth(graph, origin), float('-inf'), float('inf'), True).__display__())
