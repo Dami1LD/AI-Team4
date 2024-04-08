@@ -288,9 +288,39 @@ def alpha_beta(graph, state, depth, alpha, beta, maximizing_player):
 				break
 		return best_state
 
+def get_path(graph, origin, goal):
+	"""
+	Get the path between the origin and goal states in the graph.
+
+	Args:
+		graph (Graph): The graph representing the game tree.
+		origin (State): The starting state of the path.
+		goal (State): The ending state of the path.
+
+	Returns:
+		list: A list of states representing the path from origin to goal.
+	"""
+	path = []
+	visited = set()
+	stack = [(origin, [])]
+
+	while stack:
+		current_state, current_path = stack.pop()
+		visited.add(current_state)
+
+		if current_state == goal:
+			path = current_path
+			break
+
+		for child_state, _ in graph.get_children(current_state):
+			if child_state not in visited:
+				stack.append((child_state, current_path + [child_state]))
+
+	return path
+
 
 #TESTS
-"""
+
 def get_depth(graph, origin):
 	depth = 0
 	for c in graph.get_children(origin):
@@ -298,17 +328,18 @@ def get_depth(graph, origin):
 	return depth + 1
 	
 
-
-graph = Graph()
+"""graph = Graph()
 origin = State(random_begin()[0], 0, 0, 0, 1)
 graph = generate_graph(origin, 1, graph)
 #graph = generate_graph(State(random_begin()[0], 0, 0, 0, 1), 1, 3)
 print(display_graph(graph))
 
 
-#print(minimax(graph, origin, get_depth(graph, origin), True).__display__())
+#print(minimax(graph, origin, 1, True).__display__())
 #print(get_depth(graph, origin))
 
-
-print(alpha_beta(graph, origin, get_depth(graph, origin), float('-inf'), float('inf'), True).__display__())
-"""
+goal = alpha_beta(graph, origin, get_depth(graph, origin), float('-inf'), float('inf'), True)
+#print(alpha_beta(graph, origin, 1, float('-inf'), float('inf'), True).__display__())
+print(goal.__display__())
+for s in get_path(graph, origin, goal):
+	print(s.__display__())"""

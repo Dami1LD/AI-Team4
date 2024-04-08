@@ -1,3 +1,4 @@
+import time
 import tkinter as tk
 from tkinter import ttk
 import random
@@ -26,26 +27,71 @@ def start_game(num):
             Tree = with_graphs.Graph()
             startState = with_graphs.State(int(num), 0, 0, 0, 1)
             Tree = with_graphs.generate_graph(startState, 1, Tree)
+            actual_state = startState
+            create_game_board(root)
         else:
             Tree = with_graphs.Graph()
             startState = with_graphs.State(int(num), 0, 0, 0, 2)
             Tree = with_graphs.generate_graph(startState, 1, Tree)
-        actual_state = startState
+            actual_state = startState
+            create_game_board(root)
+            time.sleep(1)
+            root.after(1000, move_computer)
+        
     
     #create_game_board_labels(root)
-    create_gui(root)
-    print("Game started with the number: ", num)
+    
 
 def make_move(divider):
     """ function for making move (dividing the selected number with (2/3/4)) in the game."""
-    global actual_state
-    selected_number = int(divider)  # Mise à jour de selected_number avec le diviseur sélectionné
-    print("Selected number: ", selected_number)
-    print(int(divider))
-    actual_state = Tree.get_from_divisor(actual_state, int(divider))
+    global actual_state, selected_number
+    if actual_state.actual_number % divider == 0:
+        selected_number = int(divider)
+        actual_state = Tree.get_from_divisor(actual_state, int(divider))
+        #create_gui(root)
+        create_game_board(root)
+        time.sleep(1)
+        if len(Tree.get_children(actual_state)) == 0:
+            end_game()
+        else:
+            root.after(1000, move_computer)
+        
 
 
+def move_computer():
+    global actual_state, choosen_algo
+    if choosen_algo == "Minimax":
+        old_state = actual_state
+        actual_state = with_graphs.get_path(Tree, actual_state, with_graphs.minimax(Tree, actual_state, with_graphs.get_depth(Tree, actual_state), 1))[0]
+    else:
+        old_state = actual_state
+        actual_state = with_graphs.get_path(Tree, actual_state, with_graphs.alpha_beta(Tree, actual_state, with_graphs.get_depth(Tree, actual_state), float("-inf"), float("inf"), True))[0]
+    #create_gui(root)
+    create_game_board(root)
+    display_computer_move(old_state.actual_number / actual_state.actual_number)
+    if len(Tree.get_children(actual_state)) == 0:
+        end_game()
 
+def display_computer_move(divider):
+    """To show that the computer played"""
+    computer_move_window = tk.Toplevel(root)
+    computer_move_window.title("Computer Move")
+    computer_move_label = ttk.Label(computer_move_window, text="The computer played " + str(int(divider)), font=("Comic Sans MS", 12))
+    computer_move_label.pack(padx=10, pady=10)
+
+
+def end_game():
+    """To show the winner"""
+    computer_move_window = tk.Toplevel(root)
+    computer_move_window.title("Game over")
+    if actual_state.points_player1 > actual_state.points_player2:
+        text = "You won!"
+    elif actual_state.points_player1 == actual_state.points_player2:
+        text = "It is a tie!"
+    else:
+        text = "You lost!"
+    computer_move_label = ttk.Label(computer_move_window, text=text, font=("Comic Sans MS", 12))
+    computer_move_label.pack(padx=10, pady=10)
 
 def start_new_game():
     """ function for starting a new game when either after the game ends or the user wants to restart the game."""
@@ -57,6 +103,8 @@ def start_new_game():
     selected_number_str = "0"
     actual_state = None
     choosen_algo = "Minimax"
+    create_divider_selection(root)
+    create_game_board(root)
 
 def choose_algorithm():
     """ function for choosing the algorithm either minimax or the alpha-beta algorithm."""
@@ -122,17 +170,27 @@ def create_options_section(root):
     create_start_button(root)
 
 def create_who_starts_section(options_frame):
-    #THE FIRST SECTION IS FOR CHOSING WHO STARTS THE GAME 
+    global default_starter
+
+    def update_default_starter():
+        global default_starter
+        default_starter = who_starts_var.get()
+
     who_starts_label = ttk.Label(options_frame, text="⭐Choose who starts the game:", foreground="dark blue", font=("Comic Sans MS", 12))
     who_starts_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
     who_starts_var = tk.StringVar(root)
     who_starts_var.set("User")  # User is default selection
-    user_radio = ttk.Radiobutton(options_frame, text="👤User", variable=who_starts_var, value="User", style="Custom.TRadiobutton")
+
+    user_radio = ttk.Radiobutton(options_frame, text="👤User", variable=who_starts_var, value="User", style="Custom.TRadiobutton", command=update_default_starter)
     user_radio.grid(row=0, column=1, padx=5, pady=5)
 
-    computer_radio = ttk.Radiobutton(options_frame, text="🤖Computer", variable=who_starts_var, value="Computer", style="Custom.TRadiobutton")
+    computer_radio = ttk.Radiobutton(options_frame, text="🤖Computer", variable=who_starts_var, value="Computer", style="Custom.TRadiobutton", command=update_default_starter)
     computer_radio.grid(row=0, column=2, padx=5, pady=5)
+
+    # Mettre à jour la variable default_starter avec la valeur initiale
     default_starter = who_starts_var.get()
+
+
     
 
     
@@ -174,7 +232,7 @@ def create_game_board_labels(game_board_frame):
         ("💰Bank Points: ", 3)
         ]
     for label_text, row in labels_info:
-        label = ttk.Label(game_board_frame, text=label_text, foreground="dark blue", font=("Comic Sans MS", 12))
+        label = ttk.Label(game_board_frame, text=label_text, foreground="dark blue", font=("Comic Sans MS", 12), width=21)
         label.grid(row=row, column=0, padx=5, pady=5, sticky="w")
    
 def create_divider_selection(root):
@@ -202,11 +260,9 @@ def create_divider_selection(root):
     divider_dropdown.grid(row=9, column=0, padx=255, pady=5, sticky="w")
 
     def update_selected_number():
-        print("cest appele")
         global selected_number
         selected_number_str = divider_var.get()
         if selected_number_str != "":
-            print("ouais pas mal")
             selected_number = int(selected_number_str)
 
     divider_dropdown.bind("<<ComboboxSelected>>", lambda event: update_selected_number())
@@ -221,7 +277,7 @@ def create_divider_selection(root):
     current_number_display.grid(row=11, column=1, padx=5, pady=5, sticky="w")
 
     # when the divider (2,3,4) is selected by the user show the divide_number 
-    divider_dropdown.bind("<<ComboboxSelected>>", lambda event: divide_number(divider_var, numbers_dropdown, current_number_var))
+    #divider_dropdown.bind("<<ComboboxSelected>>", lambda event: divide_number(divider_var, numbers_dropdown, current_number_var))
     create_move_and_new_game_buttons(root)
 
 
@@ -235,14 +291,14 @@ def create_move_and_new_game_buttons(root):
     new_game_button = ttk.Button(root, text="Start New Game", image=new_game_icon, compound=tk.LEFT, command=start_new_game, style="Custom.TButton")
     new_game_button.grid(row=11, column=0, pady=10, padx=(260, 180),  sticky="w")
 
-def divide_number(divider_var, numbers_dropdown, current_number_var):
+"""def divide_number(divider_var, numbers_dropdown, current_number_var):
     selected_divider = int(divider_var.get())
     current_number_str = numbers_dropdown.get()
     if current_number_str:
         current_number = int(current_number_str)
         result = current_number // selected_divider
         current_number_var.set(result)
-
+"""
 
 title_icon = tk.PhotoImage(file="static.png")
 move_icon = tk.PhotoImage(file="algorithm.png")
