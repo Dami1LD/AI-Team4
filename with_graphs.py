@@ -93,6 +93,9 @@ class Graph:
 			raise ValueError("The node does not belong to the graph.")
 
 def display_graph(self):
+	"""
+	Display the graph in DOT format.
+	"""
 	dot_code = "digraph G {\n"    
 	# Add nodes to the DOT code
 	for node, children in self.nodes.items():
@@ -166,7 +169,9 @@ def already_in_graph(state, graph):
 	return None
 
 def generate_graph(state, player, graph):
-	'''Generate a graph of all possible actions from a given state.'''
+	'''
+	Generate a graph of all possible actions from a given state.
+	'''
 	graph.add_node(state)
 	
 	if state.actual_number <= 10:
@@ -319,27 +324,12 @@ def get_path(graph, origin, goal):
 	return path
 
 
-#TESTS
-
 def get_depth(graph, origin):
+	"""
+	Get the depth of the graph starting from a given node.
+	"""
 	depth = 0
 	for c in graph.get_children(origin):
 		depth = max(depth, get_depth(graph, c[0]))
 	return depth + 1
 	
-
-"""graph = Graph()
-origin = State(random_begin()[0], 0, 0, 0, 1)
-graph = generate_graph(origin, 1, graph)
-#graph = generate_graph(State(random_begin()[0], 0, 0, 0, 1), 1, 3)
-print(display_graph(graph))
-
-
-#print(minimax(graph, origin, 1, True).__display__())
-#print(get_depth(graph, origin))
-
-goal = alpha_beta(graph, origin, get_depth(graph, origin), float('-inf'), float('inf'), True)
-#print(alpha_beta(graph, origin, 1, float('-inf'), float('inf'), True).__display__())
-print(goal.__display__())
-for s in get_path(graph, origin, goal):
-	print(s.__display__())"""
